@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Space Home</title>
+
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at bottom, #05060f, #000000);
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    color: white;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+
+  .content {
+    position: absolute;
+    z-index: 10;
+    text-align: center;
+    width: 100%;
+    top: 40%;
+  }
+
+  h1 {
+    font-size: 3rem;
+    text-shadow: 0 0 20px #4fc3f7;
+  }
+
+  p {
+    opacity: 0.7;
+  }
+</style>
+</head>
+
+<body>
+
+<canvas id="space"></canvas>
+
+<div class="content">
+  <h1>My GitHub Universe 🚀</h1>
+  <p>Welcome to my solar system themed homepage</p>
+</div>
+
+<script>
+const canvas = document.getElementById("space");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Stars
+let stars = Array.from({length: 200}, () => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  r: Math.random() * 1.5
+}));
+
+// Shooting stars
+let shootingStars = [];
+
+function createShootingStar() {
+  shootingStars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height / 2,
+    len: Math.random() * 80 + 50,
+    speed: Math.random() * 10 + 6,
+    angle: Math.PI / 4
+  });
+}
+
+setInterval(createShootingStar, 1500);
+
+// Draw planets (simple solar system vibe)
+function drawPlanets(time) {
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  const planets = [
+    { r: 40, size: 4, color: "#ffcc00", speed: 0.002 },
+    { r: 80, size: 6, color: "#4fc3f7", speed: 0.0015 },
+    { r: 120, size: 7, color: "#ff7043", speed: 0.0012 }
+  ];
+
+  planets.forEach(p => {
+    const angle = time * p.speed;
+    const x = centerX + Math.cos(angle) * p.r;
+    const y = centerY + Math.sin(angle) * p.r;
+
+    ctx.beginPath();
+    ctx.fillStyle = p.color;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = p.color;
+    ctx.arc(x, y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // sun
+  ctx.beginPath();
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowBlur = 30;
+  ctx.shadowColor = "#ffffff";
+  ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function animate(time) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // stars
+  ctx.fillStyle = "white";
+  stars.forEach(s => {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // shooting stars
+  shootingStars.forEach((s, i) => {
+    ctx.beginPath();
+    ctx.strokeStyle = "white";
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(s.x - s.len, s.y + s.len);
+    ctx.stroke();
+
+    s.x += s.speed;
+    s.y += s.speed;
+
+    if (s.x > canvas.width || s.y > canvas.height) {
+      shootingStars.splice(i, 1);
+    }
+  });
+
+  drawPlanets(time);
+
+  requestAnimationFrame(animate);
+}
+
+animate(0);
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
